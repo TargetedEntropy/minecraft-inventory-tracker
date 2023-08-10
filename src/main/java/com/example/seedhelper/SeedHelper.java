@@ -12,14 +12,20 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+// import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -88,6 +94,20 @@ public class SeedHelper
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
+
+    @SubscribeEvent
+    public void placeItem(PlayerInteractEvent.RightClickBlock event)
+    {
+
+
+        ItemStack stack = event.getItemStack();
+
+        ResourceLocation itemName = ForgeRegistries.ITEMS.getKey(stack.getItem());
+
+        Player player = event.getEntity();
+        LOGGER.info("Item placed: {}", itemName);
+    }
+
     private static List<ItemStack> ALL_SEEDS;
     private void commonSetup(final FMLCommonSetupEvent event)
     {
@@ -104,18 +124,17 @@ public class SeedHelper
             }
         }
 
-//        ALL_SEEDS = ForgeRegistries.ITEMS.getValues().stream().map(item -> {
-//
-//            ResourceLocation itemName = ForgeRegistries.ITEMS.getKey(item);
-//            if (itemName.getPath().contains("seed")) {
-//                LOGGER.info("Seed: {}", itemName);
-//            }
-//            return ItemStack.EMPTY;
-//        }).filter(stack -> !stack.isEmpty()).toList();
+        ALL_SEEDS = ForgeRegistries.ITEMS.getValues().stream().map(item -> {
 
-        LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
+            ResourceLocation itemName = ForgeRegistries.ITEMS.getKey(item);
+            if (itemName.getPath().contains("seed")) {
+                ItemStack stack = new ItemStack(item);
+                LOGGER.info("Seed: {}", itemName);
+                return stack;
+            }
+            return ItemStack.EMPTY;
+        }).filter(stack -> !stack.isEmpty()).toList();
 
-        Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
     }
 
     // Add the example block item to the building blocks tab
