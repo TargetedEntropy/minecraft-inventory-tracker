@@ -1,5 +1,8 @@
 package com.example.seedhelper;
 
+
+import com.example.seedhelper.SeedCommand;
+
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -28,6 +31,9 @@ public class SeedHelper
 
     public SeedHelper()
     {
+
+        MinecraftForge.EVENT_BUS.addListener(SeedCommand::commandRegister);
+
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         // Register ourselves for server and other game events we are interested in
@@ -42,6 +48,11 @@ public class SeedHelper
             if (itemName.getPath().contains("seed")) {
                 LOGGER.info("Seed: {}", itemName);
             }
+
+            if (itemName.getPath().contains("chicken")) {
+                LOGGER.info("Chicken: {}", itemName);
+            }
+
         }
 
         List<ItemStack> ALL_SEEDS = ForgeRegistries.ITEMS.getValues().stream().map(item -> {
