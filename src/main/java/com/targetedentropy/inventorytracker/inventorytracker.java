@@ -15,6 +15,12 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -40,13 +46,39 @@ public class inventorytracker
 
 
     @SubscribeEvent
-    public void placeItem(PlayerInteractEvent.RightClickBlock event)
-    {
+    public void placeItem(PlayerInteractEvent.RightClickBlock event) throws IOException {
         ItemStack stack = event.getItemStack();
         ResourceLocation itemName = ForgeRegistries.ITEMS.getKey(stack.getItem());
         Player player = event.getEntity();
 
         LOGGER.info("Item placed: {}", itemName);
+
+        URL url = new URL("https://super.sekret.api");
+        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setDoOutput(true);
+
+        String json = "{\"itemName\": "+itemName+"}";
+
+        // Write the body to the stream
+        try(OutputStream os = con.getOutputStream()) {
+            byte[] input = json.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        // Read the response
+        try(BufferedReader br = new BufferedReader(
+                new InputStreamReader(con.getInputStream(), "utf-8"))) {
+            StringBuilder response = new StringBuilder();
+            String responseLine = null;
+            while ((responseLine = br.readLine()) != null) {
+                response.append(responseLine.trim());
+            }
+            System.out.println(response.toString());
+        }
 
     }
 }
