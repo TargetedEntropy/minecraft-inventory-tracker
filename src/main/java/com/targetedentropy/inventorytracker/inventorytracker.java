@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 
 
@@ -44,16 +46,8 @@ public class inventorytracker
     }
 
 
-
-    @SubscribeEvent
-    public void placeItem(PlayerInteractEvent.RightClickBlock event) throws IOException {
-        ItemStack stack = event.getItemStack();
-        ResourceLocation itemName = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        Player player = event.getEntity();
-
-        LOGGER.info("Item placed: {}", itemName);
-
-        URL url = new URL("https://super.sekret.api");
+    public void postItem(String itemName, Player player) throws IOException {
+        URL url = new URL("http://main.tovdc.com:5050/items");
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
 
         con.setRequestMethod("POST");
@@ -61,8 +55,8 @@ public class inventorytracker
         con.setRequestProperty("Accept", "application/json");
         con.setDoOutput(true);
 
-        String json = "{\"itemName\": "+itemName+"}";
-
+        String json = "{\"uuid\": \""+player.getUUID()+"\", \"item_name\": \""+itemName+"\"}";
+        LOGGER.info("JsonStr: {}", json);
         // Write the body to the stream
         try(OutputStream os = con.getOutputStream()) {
             byte[] input = json.getBytes("utf-8");
@@ -79,6 +73,15 @@ public class inventorytracker
             }
             System.out.println(response.toString());
         }
+    }
 
+    @SubscribeEvent
+    public void placeItem(PlayerInteractEvent.RightClickBlock event) throws IOException {
+        ItemStack stack = event.getItemStack();
+        ResourceLocation itemName = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        Player player = event.getEntity();
+
+        LOGGER.info("Item placed: {}", itemName);
+        postItem(String.valueOf(itemName), player);
     }
 }
