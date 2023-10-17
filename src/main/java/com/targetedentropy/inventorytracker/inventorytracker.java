@@ -24,6 +24,12 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 
+import com.mojang.brigadier.CommandDispatcher;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+
+import static java.lang.Boolean.TRUE;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(inventorytracker.MODID)
@@ -45,8 +51,19 @@ public class inventorytracker
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+            dispatcher.register(Commands.literal("purge")
+                    .executes(context -> {
+                        try {
+                            return postItem("test",  context.getSource().getPlayerOrException());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+            );
+    }
 
-    public void postItem(String itemName, Player player) throws IOException {
+    public static int postItem(String itemName, Player player) throws IOException {
         URL url = new URL("http://main.tovdc.com:5050/items");
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
 
@@ -73,6 +90,7 @@ public class inventorytracker
             }
             System.out.println(response.toString());
         }
+        return 1;
     }
 
     @SubscribeEvent
