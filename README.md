@@ -1,6 +1,6 @@
 # Minecraft Inventory Tracker #
 
-Minecraft Inventory Tracker, or M-IT, is a Minecraft utility module based in forge. While the name is discriptive enough, M-IT is intended to track across multiple accounts and provide basic statistics about not only inventory, but also usage.
+Minecraft Inventory Tracker, or M-IT, is a Minecraft utility module based in forge. While the name is descriptive enough, M-IT is intended to track across multiple accounts and provide basic statistics about not only inventory, but also usage.
 
 Would you like to know which blocks you use most? What blocks haven't you had yet? Which character has that amazing wooden sword?  M-IT should be able to tell you.
 
